@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Step 1: Build ────────────────────────────────────────────────────────
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── Step 2: Test ─────────────────────────────────────────────────────────
+
+      - name: Run tests
+        run: pytest --tb=short -v
+
+      # ── Step 3: Deploy ───────────────────────────────────────────────────────
+
+      - name: Deploy to Render
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "Deploying to Render..."
+          curl -s "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" | grep -q "deployId" \
+            && echo "Deployment triggered successfully." \
+            || echo "Deploy hook responded — check Render dashboard for status."
