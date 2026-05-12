@@ -28,7 +28,7 @@ def calculate_grade(average):
 def home():
     return jsonify({
         "app": "Student Grade Tracker",
-        "version": "1.0",
+        "version": "1.1",
         "endpoints": [
             "GET  /students                    - list all students",
             "POST /students                    - add a new student",
